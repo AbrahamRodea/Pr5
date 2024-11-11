@@ -1,0 +1,94 @@
+---
+title: "Arbol"
+author: "IART"
+date: "2024-11-11"
+output: html_document
+---
+
+# Crear un arbol filogenetico a partir de secuencias en un archivo tipo .fasta
+
+Necesitas cargar las siguientes librerias
+
+```{r}
+library(ape)
+library(phangorn)
+library(phytools)
+library(msa)
+library(Biostrings)
+library(ggtree)
+library(tidyverse)
+```
+
+*Leemos el archivo "Insulinas.fasta" que se se encuentra en la carpeta "Datos" del presente R project. El archivo contiene secuencias de aminoacidos.*
+
+```{r}
+secuencia<-readAAStringSet("Datos/Insulinas.fasta")
+
+secuencia
+```
+
+*Alineamos las secuencias usando la librerya msa, esta libreria nos permite alinear secuencias con distintos metodos*
+
+```{r}
+alineamiento<-msa(secuencia, method = "ClustalW" )
+alineamiento
+```
+
+*Podemos guardar nuestros alineamientos directamente como un archivo en formato PDF, el archivo se almacena en la direccion y con el nombre que nosotros coloquemos dentro del parentesis.*
+
+```{r}
+pdf("Resultados/Alineamientow")
+alineamiento<-msa(secuencia, method = "ClustalW" )
+
+pdf("Resultados/alineamientoM")
+alineamiento2<-msa(secuencia, method = "Muscle" )
+
+```
+
+*Modificamos las secuencias para que estas sean manipulables y creamos el objeto "arbol"*
+
+```{r}
+arbol<-ape::as.AAbin(alineamiento)
+arbol<-ape::dist.aa(arbol)
+arbol
+
+
+```
+
+*Generamos una versión grafica del arbol filogenetico*
+
+```{r}
+
+arbol2<-phangorn::upgma(arbol)
+plot(arbol2)
+```
+
+*Graficamos nuevamente el árbol, pero esta vez usamos algunas funciones para modificar algunas de las caracteristicas visuales del arbol.*
+
+```{r}
+arbol3<- ggtree(arbol2, branch.length = "none") +
+  
+  geom_tiplab() +
+  
+  geom_highlight(node = 3, color = "yellow")
+
+arbol3
+```
+
+*Al igual que las alineaciones, el arbol tambien puede guardarse directamente como un archivo PDF.*
+
+```{r}
+pdf("Resultados//primer_arbol1")
+arbol4<- ggtree(arbol2 , branch.length = "none") +
+  
+  geom_tiplab() +
+  
+  geom_highlight(node = 3, color = "blue")
+
+arbol4
+
+```
+
+*Arbol final*
+
+![](Datos/arbol1.png)
